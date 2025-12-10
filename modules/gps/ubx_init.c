@@ -40,6 +40,12 @@
 #define CFG_UART2INPROT_RTCM3X (0x10750004U)
 #define CFG_UART2OUTPROT_RTCM3X (0x10760004U)
 
+/* GNSS System Enable */
+#define CFG_SIGNAL_GPS_ENA (0x1031001fU)
+#define CFG_SIGNAL_GAL_ENA (0x10310021U)
+#define CFG_SIGNAL_BDS_ENA (0x10310022U)
+#define CFG_SIGNAL_QZSS_ENA (0x10310024U)
+
 /* base station */
 #define CFG_TMODE_MODE (0x20030001U) // 0 disable 1 survey 2 fixed
 #define CFG_TMODE_POS_TYPE (0x20030002U) // 0 ecef 1 llh
@@ -50,6 +56,31 @@
 #define CFG_TMODE_SURVEY_ACC_LIMIT (0x40030011U)  // U2 pos accuracy 0.1mm 단위
 
 static const ubx_cfg_item_t ublox_base_configs[] = {
+
+    /* GNSS 시스템 활성화 */
+    {
+        .key_id = CFG_SIGNAL_GPS_ENA,
+        .value = {1},
+        .value_len = 1,
+    },
+
+    {
+        .key_id = CFG_SIGNAL_GAL_ENA,
+        .value = {1},
+        .value_len = 1,
+    },
+
+    {
+        .key_id = CFG_SIGNAL_BDS_ENA,
+        .value = {1},
+        .value_len = 1,
+    },
+
+    {
+        .key_id = CFG_SIGNAL_QZSS_ENA,
+        .value = {1},
+        .value_len = 1,
+    },
 
     /* NMEA OUTPUT 설정 */
     {
