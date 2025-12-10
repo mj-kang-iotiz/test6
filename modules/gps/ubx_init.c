@@ -124,9 +124,16 @@ static const ubx_cfg_item_t ublox_base_configs[] = {
         .key_id = CFG_RTCM_1124_UART1,
         .value = {1},
         .value_len = 1,
+    },
+
+    /* TMODE Position Type: LLH (필수 - 좌표 입력 형식 지정) */
+    {
+        .key_id = CFG_TMODE_POS_TYPE,
+        .value = {1},  // 1 = LLH (Lat/Lon/Height)
+        .value_len = 1,
     }
 
-    /* TMODE 설정은 초기화에서 제거 - ubx_set_fixed_position_async()에서 처리 */
+    /* TMODE_MODE는 ubx_set_fixed_position_async()에서 설정 */
 };
 
 static const ubx_cfg_item_t ublox_rover_configs[] = {
@@ -457,6 +464,8 @@ static void on_position_set_complete(bool ack, void *user_data)
 
     LOG_DEBUG("Position set (lat: %s, lon: %s, alt: %s m)\n",
               ctx->lat_str, ctx->lon_str, ctx->alt_str);
+
+    LOG_INFO("Sending TMODE_MODE=2 (Fixed) command...\n");
 
     bool result = ubx_send_valset_cb(ctx->gps, UBX_CFG_LAYER_RAM,
                                      &ctx->mode_config, 1,
