@@ -36,6 +36,7 @@
 #define CFG_BAUDRATE_UART1 (0x40520001U) // 4바이트
 #define CFG_BAUDRATE_UART2 (0x40530001U) // 4바이트
 
+#define CFG_UART1INPROT_RTCM3X (0x10730004U)
 #define CFG_UART2INPROT_RTCM3X (0x10750004U)
 #define CFG_UART2OUTPROT_RTCM3X (0x10760004U)
 
@@ -84,6 +85,13 @@ static const ubx_cfg_item_t ublox_base_configs[] = {
     /* UBX 메시지 설정 */
     {
         .key_id = CFG_NAV_HPPOSLLH_UART1,
+        .value = {1},
+        .value_len = 1,
+    },
+
+    /* UART1 RTCM 입력 활성화 (NTRIP으로부터 RTCM 수신용) */
+    {
+        .key_id = CFG_UART1INPROT_RTCM3X,
         .value = {1},
         .value_len = 1,
     },
