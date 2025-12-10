@@ -887,6 +887,12 @@ void gps_init_all(void) {
   const board_config_t *config = board_get_config();
 
   for (uint8_t i = 0; i < config->gps_cnt && i < GPS_ID_MAX; i++) {
+    // 이미 초기화되어 있으면 스킵
+    if (gps_instances[i].enabled) {
+      LOG_WARN("GPS[%d] 이미 초기화됨, 스킵", i);
+      continue;
+    }
+
     gps_type_t type = config->gps[i];
 
     LOG_DEBUG("GPS[%d] 초기화 - 타입: %s", i,
