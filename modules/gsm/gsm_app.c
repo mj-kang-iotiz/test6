@@ -177,12 +177,12 @@ static void gsm_process_task(void *pvParameter) {
   xTaskCreate(gsm_at_cmd_process_task, "gsm_at_cmd", 1536, &gsm_handle,
               tskIDLE_PRIORITY + 2, NULL);
 
-  led_set_color(1, LED_COLOR_RED);
-  led_set_state(1, true);
+  led_set_color(LED_ID_1, LED_COLOR_RED);
+  led_set_state(LED_ID_1, true);
 
   while (1) {
     xQueueReceive(gsm_queue, &dummy, portMAX_DELAY);
-    led_set_toggle(1);
+    led_set_toggle(LED_ID_1);
     pos = gsm_get_rx_pos();
 
     if (pos != old_pos) {

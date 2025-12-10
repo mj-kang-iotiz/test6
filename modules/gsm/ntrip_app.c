@@ -313,7 +313,8 @@ static void ntrip_tcp_recv_task(void *pvParameter)
     {
 
       LOG_ERR("GGA 전송 큐 생성 최종 실패 - 태스크 종료");
-      g_ntrip_recv_task_handle = NULL; 
+      led_set_color(LED_ID_1, LED_COLOR_RED);  // 초기화 실패
+      g_ntrip_recv_task_handle = NULL;
       vTaskDelete(NULL);
 
       return;
@@ -461,6 +462,8 @@ static void ntrip_tcp_recv_task(void *pvParameter)
 
     LOG_ERR("초기 연결 최종 실패 - 태스크 종료");
 
+    led_set_color(LED_ID_1, LED_COLOR_RED);  // 초기화 실패
+
     if (sock)
 
     {
@@ -497,7 +500,7 @@ static void ntrip_tcp_recv_task(void *pvParameter)
 
   base_auto_fix_on_ntrip_connected(true);
 
-  led_set_color(LED_ID_1, LED_COLOR_YELLOW);
+  led_set_color(LED_ID_1, LED_COLOR_GREEN);  // 연결 성공
 
  
 
