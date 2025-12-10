@@ -827,3 +827,12 @@ void ntrip_stop(void)
 
   LOG_INFO("NTRIP 중지 완료");
 }
+
+/**
+ * @brief NTRIP 연결 상태 확인
+ * @return true: 연결됨, false: 연결 안됨
+ */
+bool ntrip_is_connected(void)
+{
+  return g_ntrip_connected;
+}

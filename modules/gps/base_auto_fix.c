@@ -331,20 +331,30 @@ static void status_timer_callback(TimerHandle_t xTimer) {
 
   uint8_t fix = gps_get_instance_handle(0)->nmea_data.gga.fix;
   led_color_t gsm_status = led_get_color(LED_ID_1);
+  bool ntrip_connected = ntrip_is_connected();
 
   uint8_t connect_status = 2;
 
+  // NTRIP 실제 상태와 LED 상태를 모두 고려
   if(gsm_status == LED_COLOR_NONE || gsm_status == LED_COLOR_RED)
   {
-    connect_status = 2;
+    connect_status = 2;  // 접속 실패
   }
   else if(gsm_status == LED_COLOR_YELLOW)
   {
-    connect_status = 1;
+    connect_status = 0;  // 접속 중
   }
   else if(gsm_status == LED_COLOR_GREEN)
   {
-    connect_status = 0;
+    // GREEN LED지만 실제로 연결되지 않은 경우(태스크 삭제 등) 처리
+    if(ntrip_connected)
+    {
+      connect_status = 1;  // 접속 성공
+    }
+    else
+    {
+      connect_status = 2;  // 접속 실패 (태스크 삭제됨)
+    }
   }
 
   char buf[10];
