@@ -119,10 +119,9 @@ static int ntrip_build_http_request(char *buffer, size_t buffer_size)
   // HTTP 요청 생성
 
   int len = snprintf(buffer, buffer_size,
-                     "GET /%s HTTP/1.0\r\n"
+                     "GET /%s HTTP/1.1\r\n"
                      "User-Agent: NTRIP GUGU SYSTEM\r\n"
                      "Accept: */*\r\n"
-                     "Connection: close\r\n"
                      "Authorization: Basic %s\r\n"
                      "\r\n",
                      params->ntrip_mountpoint,
