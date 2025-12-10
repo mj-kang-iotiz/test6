@@ -93,6 +93,8 @@ bool gps_config_heading_length_async(gps_id_t id, float baseline_len, float slav
 /**
  * @brief 특정 GPS 인스턴스 정리 및 태스크 삭제
  *
+ * 내부에서 50ms delay를 통해 IDLE 태스크가 메모리를 정리할 시간을 줌
+ *
  * @param id GPS ID
  * @return true: 성공, false: 실패
  */
@@ -100,6 +102,9 @@ bool gps_cleanup_instance(gps_id_t id);
 
 /**
  * @brief 모든 GPS 인스턴스 정리 및 태스크 삭제
+ *
+ * 내부에서 추가 200ms delay를 통해 완전한 정리를 보장
+ * 호출 후 바로 gps_init_all() 사용 가능 (별도 delay 불필요)
  */
 void gps_cleanup_all(void);
 

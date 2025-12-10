@@ -1449,14 +1449,17 @@ bool gps_cleanup_instance(gps_id_t id)
   if (inst->task != NULL) {
     vTaskDelete(inst->task);
     inst->task = NULL;
-    LOG_INFO("GPS[%d] RX 태스크 삭제 완료", id);
+    LOG_INFO("GPS[%d] RX 태스크 삭제 요청", id);
   }
 
   if (inst->tx_task != NULL) {
     vTaskDelete(inst->tx_task);
     inst->tx_task = NULL;
-    LOG_INFO("GPS[%d] TX 태스크 삭제 완료", id);
+    LOG_INFO("GPS[%d] TX 태스크 삭제 요청", id);
   }
+
+  vTaskDelay(pdMS_TO_TICKS(50));
+  LOG_INFO("GPS[%d] 태스크 정리 대기 완료", id);
 
   if (inst->queue != NULL) {
     vQueueDelete(inst->queue);
@@ -1499,7 +1502,8 @@ void gps_cleanup_all(void)
     }
   }
 
-  LOG_INFO("모든 GPS 인스턴스 정리 완료");
+  vTaskDelay(pdMS_TO_TICKS(200));
+  LOG_INFO("모든 GPS 인스턴스 정리 완료 (IDLE 태스크 정리 대기 완료)");
 }
 
 
