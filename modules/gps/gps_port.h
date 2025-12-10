@@ -13,4 +13,11 @@ uint32_t gps_port_get_rx_pos(gps_id_t id);
 char *gps_port_get_recv_buf(gps_id_t id);
 void gps_port_set_queue(gps_id_t id, QueueHandle_t queue);
 
+/**
+ * @brief GPS 인스턴스 정리 (UART/DMA/GPIO 정지)
+ *
+ * @param id GPS ID
+ */
+void gps_port_cleanup_instance(gps_id_t id);
+
 #endif

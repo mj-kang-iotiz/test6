@@ -1345,11 +1345,11 @@ bool gps_config_heading_length_async(gps_id_t id, float baseline_len, float slav
 
   }
 
- 
+
 
   gps_instance_t *inst = &gps_instances[id];
 
- 
+
 
   // UM982만 지원
 
@@ -1361,7 +1361,7 @@ bool gps_config_heading_length_async(gps_id_t id, float baseline_len, float slav
 
   }
 
- 
+
 
   // 컨텍스트 동적 할당
 
@@ -1375,7 +1375,7 @@ bool gps_config_heading_length_async(gps_id_t id, float baseline_len, float slav
 
   }
 
- 
+
 
   // 컨텍스트 초기화
 
@@ -1387,7 +1387,7 @@ bool gps_config_heading_length_async(gps_id_t id, float baseline_len, float slav
 
   ctx->user_data = user_data;
 
- 
+
 
   // 첫 번째 명령어: config heading length [baseline] [slave_distance]
 
@@ -1395,11 +1395,11 @@ bool gps_config_heading_length_async(gps_id_t id, float baseline_len, float slav
 
            "config heading length %.4f %.4f\r\n", baseline_len, slave_distance);
 
- 
+
 
   LOG_INFO("GPS[%d] Starting heading config: %s", id, ctx->cmd_buffer);
 
- 
+
 
   // 첫 번째 명령어 전송
 
@@ -1413,10 +1413,93 @@ bool gps_config_heading_length_async(gps_id_t id, float baseline_len, float slav
 
   }
 
- 
+
 
   return true;
 
+}
+
+/**
+ * @brief 특정 GPS 인스턴스 정리 및 태스크 삭제
+ */
+bool gps_cleanup_instance(gps_id_t id)
+{
+  if (id >= GPS_ID_MAX) {
+    LOG_ERR("GPS[%d] invalid ID", id);
+    return false;
+  }
+
+  gps_instance_t *inst = &gps_instances[id];
+
+  if (!inst->enabled) {
+    LOG_WARN("GPS[%d] already disabled", id);
+    return true;
+  }
+
+  LOG_INFO("GPS[%d] 정리 시작", id);
+
+  bool use_led = (id == GPS_ID_BASE ? 1 : 0);
+  if (use_led) {
+    led_set_color(2, LED_COLOR_NONE);
+    led_set_state(2, false);
+  }
+
+  gps_port_cleanup_instance(id);
+
+  if (inst->task != NULL) {
+    vTaskDelete(inst->task);
+    inst->task = NULL;
+    LOG_INFO("GPS[%d] RX 태스크 삭제 완료", id);
+  }
+
+  if (inst->tx_task != NULL) {
+    vTaskDelete(inst->tx_task);
+    inst->tx_task = NULL;
+    LOG_INFO("GPS[%d] TX 태스크 삭제 완료", id);
+  }
+
+  if (inst->queue != NULL) {
+    vQueueDelete(inst->queue);
+    inst->queue = NULL;
+    LOG_INFO("GPS[%d] 큐 삭제 완료", id);
+  }
+
+  if (inst->cmd_queue != NULL) {
+    vQueueDelete(inst->cmd_queue);
+    inst->cmd_queue = NULL;
+    LOG_INFO("GPS[%d] 명령 큐 삭제 완료", id);
+  }
+
+  if (inst->gps.mutex != NULL) {
+    vSemaphoreDelete(inst->gps.mutex);
+    inst->gps.mutex = NULL;
+    LOG_INFO("GPS[%d] 뮤텍스 삭제 완료", id);
+  }
+
+  memset(inst, 0, sizeof(gps_instance_t));
+  inst->enabled = false;
+
+  LOG_INFO("GPS[%d] 정리 완료", id);
+
+  return true;
+}
+
+/**
+ * @brief 모든 GPS 인스턴스 정리 및 태스크 삭제
+ */
+void gps_cleanup_all(void)
+{
+  const board_config_t *config = board_get_config();
+
+  LOG_INFO("모든 GPS 인스턴스 정리 시작");
+
+  for (uint8_t i = 0; i < config->gps_cnt && i < GPS_ID_MAX; i++) {
+    if (gps_instances[i].enabled) {
+      gps_cleanup_instance((gps_id_t)i);
+    }
+  }
+
+  LOG_INFO("모든 GPS 인스턴스 정리 완료");
 }
 
 

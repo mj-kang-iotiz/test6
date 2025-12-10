@@ -636,3 +636,91 @@ void gps_port_set_queue(gps_id_t id, QueueHandle_t queue)
     gps_queues[id] = queue;
   }
 }
+
+/**
+ * @brief GPS 인스턴스 정리 (UART/DMA/GPIO 정지)
+ */
+void gps_port_cleanup_instance(gps_id_t id)
+{
+  if (id >= GPS_CNT)
+    return;
+
+  const board_config_t *config = board_get_config();
+
+  LOG_INFO("GPS[%d] Port 정리 시작", id);
+
+  if (config->board == BOARD_TYPE_BASE_UM982 ||
+      config->board == BOARD_TYPE_BASE_F9P)
+  {
+    if (id == GPS_ID_BASE && uart2_gps_id == id)
+    {
+      LL_USART_Disable(USART2);
+      LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_5);
+      LL_USART_DisableDMAReq_RX(USART2);
+      LL_USART_DisableIT_IDLE(USART2);
+      LL_USART_DisableIT_PE(USART2);
+      LL_USART_DisableIT_ERROR(USART2);
+      NVIC_DisableIRQ(USART2_IRQn);
+      NVIC_DisableIRQ(DMA1_Stream5_IRQn);
+
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+
+      gps_queues[id] = NULL;
+      LOG_INFO("GPS[%d] USART2 정리 완료", id);
+    }
+  }
+  else if (config->board == BOARD_TYPE_ROVER_UM982)
+  {
+    if (id == GPS_ID_BASE && uart2_gps_id == id)
+    {
+      LL_USART_Disable(USART2);
+      LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_5);
+      LL_USART_DisableDMAReq_RX(USART2);
+      LL_USART_DisableIT_IDLE(USART2);
+      LL_USART_DisableIT_PE(USART2);
+      LL_USART_DisableIT_ERROR(USART2);
+      NVIC_DisableIRQ(USART2_IRQn);
+      NVIC_DisableIRQ(DMA1_Stream5_IRQn);
+
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+
+      gps_queues[id] = NULL;
+      LOG_INFO("GPS[%d] USART2 정리 완료", id);
+    }
+  }
+  else if (config->board == BOARD_TYPE_ROVER_F9P)
+  {
+    if (id == GPS_ID_BASE && uart2_gps_id == id)
+    {
+      LL_USART_Disable(USART2);
+      LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_5);
+      LL_USART_DisableDMAReq_RX(USART2);
+      LL_USART_DisableIT_IDLE(USART2);
+      LL_USART_DisableIT_PE(USART2);
+      LL_USART_DisableIT_ERROR(USART2);
+      NVIC_DisableIRQ(USART2_IRQn);
+      NVIC_DisableIRQ(DMA1_Stream5_IRQn);
+
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+
+      gps_queues[id] = NULL;
+      LOG_INFO("GPS[%d] USART2 정리 완료", id);
+    }
+    else if (id == GPS_ID_ROVER && uart4_gps_id == id)
+    {
+      LL_USART_Disable(UART4);
+      LL_DMA_DisableStream(DMA1, LL_DMA_STREAM_2);
+      LL_USART_DisableDMAReq_RX(UART4);
+      LL_USART_DisableIT_IDLE(UART4);
+      LL_USART_DisableIT_PE(UART4);
+      LL_USART_DisableIT_ERROR(UART4);
+      NVIC_DisableIRQ(UART4_IRQn);
+      NVIC_DisableIRQ(DMA1_Stream2_IRQn);
+
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+
+      gps_queues[id] = NULL;
+      LOG_INFO("GPS[%d] UART4 정리 완료", id);
+    }
+  }
+}
