@@ -1,0 +1,4 @@
+../lib/gps/gps_parse.c:10:9:gps_parse_number	8
+../lib/gps/gps_parse.c:32:8:gps_parse_double	9
+../lib/gps/gps_parse.c:68:7:gps_parse_float	9
+../lib/gps/gps_parse.c:104:6:gps_parse_character	3

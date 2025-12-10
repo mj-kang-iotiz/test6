@@ -1,0 +1,8 @@
+../lib/gps/gps_unicore.c:6:20:gps_get_unicore_response	1
+../lib/gps/gps_unicore.c:10:9:gps_parse_unicore_term	4
+../lib/gps/gps_unicore.c:35:24:calc_unicore_binary_chksum	1
+../lib/gps/gps_unicore.c:44:23:check_unicore_binary_chksum	2
+../lib/gps/gps_unicore.c:55:13:store_unicore_bin_bestnavb_data	1
+../lib/gps/gps_unicore.c:61:13:store_unicore_bin_data	2
+../lib/gps/gps_unicore.c:72:9:gps_parse_unicore_bin	6
+../lib/gps/gps_unicore.c:211:10:calc_crc32	2

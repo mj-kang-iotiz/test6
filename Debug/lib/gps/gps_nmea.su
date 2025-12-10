@@ -1,0 +1,4 @@
+../lib/gps/gps_nmea.c:15:15:parse_lat_lon	40	static
+../lib/gps/gps_nmea.c:31:13:parse_nmea_gga	16	static
+../lib/gps/gps_nmea.c:96:13:parse_nmea_gpths	16	static
+../lib/gps/gps_nmea.c:118:9:gps_parse_nmea_term	32	static

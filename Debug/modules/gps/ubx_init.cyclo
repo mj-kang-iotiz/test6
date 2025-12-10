@@ -1,0 +1,12 @@
+../modules/gps/ubx_init.c:304:13:on_init_complete	2
+../modules/gps/ubx_init.c:316:6:ubx_rover_init	1
+../modules/gps/ubx_init.c:323:6:ubx_base_init	1
+../modules/gps/ubx_init.c:330:6:ubx_moving_base_init	1
+../modules/gps/ubx_init.c:337:13:on_factory_reset_complete	4
+../modules/gps/ubx_init.c:364:6:ubx_factory_reset	3
+../modules/gps/ubx_init.c:400:6:ubx_disable_time_mode	3
+../modules/gps/ubx_init.c:436:13:on_mode_enable_complete	4
+../modules/gps/ubx_init.c:454:13:on_position_set_complete	5
+../modules/gps/ubx_init.c:495:6:ubx_set_fixed_position_async	6
+../modules/gps/ubx_init.c:576:13:on_survey_in_complete	4
+../modules/gps/ubx_init.c:594:6:ubx_set_survey_in_mode_async	3

@@ -1,0 +1,15 @@
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usart.h:503:22:LL_USART_Enable	1
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usart.h:517:22:LL_USART_Disable	1
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usart.h:1119:22:LL_USART_SetBaudRate	2
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usart.h:1887:1:LL_USART_IsActiveFlag_RXNE	1
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usart.h:1897:26:LL_USART_IsActiveFlag_TC	1
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usart.h:1908:1:LL_USART_IsActiveFlag_TXE	1
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usart.h:2464:25:LL_USART_ReceiveData8	1
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usart.h:2485:22:LL_USART_TransmitData8	1
+../modules/gps/f9p_baudrate_config.c:25:13:ubx_send_ll	11
+../modules/gps/f9p_baudrate_config.c:93:12:wait_for_ack_ll	23
+../modules/gps/f9p_baudrate_config.c:219:13:f9p_set_uart_baudrate	3
+../modules/gps/f9p_baudrate_config.c:301:13:f9p_poll_uart_config	20
+../modules/gps/f9p_baudrate_config.c:435:13:change_stm32_baudrate_ll	1
+../modules/gps/f9p_baudrate_config.c:469:6:f9p_init_uart1_baudrate_115200	5
+../modules/gps/f9p_baudrate_config.c:569:6:f9p_init_rover_uart1_baudrate_115200	5

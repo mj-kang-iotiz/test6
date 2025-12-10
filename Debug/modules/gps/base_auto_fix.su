@@ -1,0 +1,14 @@
+../modules/gps/base_auto_fix.c:65:6:base_auto_fix_init	40	static
+../modules/gps/base_auto_fix.c:134:6:base_auto_fix_start	8	static
+../modules/gps/base_auto_fix.c:155:6:base_auto_fix_stop	16	static
+../modules/gps/base_auto_fix.c:184:23:base_auto_fix_get_state	4	static
+../modules/gps/base_auto_fix.c:198:6:base_auto_fix_on_gps_fix_changed	32	static
+../modules/gps/base_auto_fix.c:240:6:base_auto_fix_on_gga_update	64	static
+../modules/gps/base_auto_fix.c:262:6:base_auto_fix_on_ntrip_connected	16	static
+../modules/gps/base_auto_fix.c:282:6:base_auto_fix_get_average_coord	24	static
+../modules/gps/base_auto_fix.c:317:13:averaging_timer_callback	24	static
+../modules/gps/base_auto_fix.c:330:13:status_timer_callback	32	static
+../modules/gps/base_auto_fix.c:359:13:calculate_average_with_outlier_removal	208	static
+../modules/gps/base_auto_fix.c:512:13:switch_to_base_fixed_mode	168	static
+../modules/gps/base_auto_fix.c:645:13:shutdown_ntrip_and_lte	8	static
+../modules/gps/base_auto_fix.c:673:13:base_auto_fix_worker_task	48	static

@@ -1,0 +1,14 @@
+../lib/rs485/softuart.c:32:15:SoftUartGpioReadPin	16	static
+../lib/rs485/softuart.c:38:6:SoftUartGpioWritePin	16	static
+../lib/rs485/softuart.c:44:17:SoftUartInit	24	static
+../lib/rs485/softuart.c:78:6:SoftUartTransmitBit	16	static
+../lib/rs485/softuart.c:84:17:SoftUartEnableRx	16	static
+../lib/rs485/softuart.c:92:17:SoftUartDisableRx	16	static
+../lib/rs485/softuart.c:100:9:SoftUartRxAlavailable	16	static
+../lib/rs485/softuart.c:106:17:SoftUartReadRxBuffer	24	static
+../lib/rs485/softuart.c:123:6:SoftUartTxProcess	16	static
+../lib/rs485/softuart.c:191:6:SoftUartRxDataBitProcess	16	static
+../lib/rs485/softuart.c:239:6:SoftUartWaitUntilTxComplate	16	static
+../lib/rs485/softuart.c:248:17:SoftUartPuts	24	static
+../lib/rs485/softuart.c:270:9:SoftUartScanRxPorts	16	static
+../lib/rs485/softuart.c:299:6:SoftUartHandler	16	static

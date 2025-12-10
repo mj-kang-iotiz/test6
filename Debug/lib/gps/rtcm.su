@@ -1,0 +1,4 @@
+../lib/gps/rtcm.c:34:17:calculate_lora_toa	24	static
+../lib/gps/rtcm.c:50:13:rtcm_last_fragment_callback	24	static
+../lib/gps/rtcm.c:60:6:rtcm_tx_task_init	8	static
+../lib/gps/rtcm.c:65:6:rtcm_send_to_lora	64	static

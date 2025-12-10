@@ -1,0 +1,14 @@
+../lib/gps/gps.c:17:6:_gps_gga_raw_add	16	static
+../lib/gps/gps.c:24:6:get_gga	32	static
+../lib/gps/gps.c:44:20:add_nmea_chksum	16	static
+../lib/gps/gps.c:54:23:check_nmea_chksum	24	static
+../lib/gps/gps.c:74:20:add_payload	16	static
+../lib/gps/gps.c:87:20:term_add	16	static
+../lib/gps/gps.c:99:20:term_next	16	static
+../lib/gps/gps.c:105:20:term_add_unicore	16	static
+../lib/gps/gps.c:117:20:term_next_unicore	16	static
+../lib/gps/gps.c:123:20:add_unicore_chksum	16	static
+../lib/gps/gps.c:127:23:check_unicore_chksum	24	static
+../lib/gps/gps.c:145:6:gps_init	16	static
+../lib/gps/gps.c:159:6:gps_parse_process	48	static
+../lib/gps/gps.c:388:6:gps_set_evt_handler	16	static
