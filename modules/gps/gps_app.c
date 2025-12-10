@@ -757,7 +757,7 @@ static void gps_process_task(void *pvParameter) {
     led_set_state(2, true);
   }
 
-  vTaskDelay(pdMS_TO_TICKS(1000));
+  vTaskDelay(pdMS_TO_TICKS(1500));
 
   // gps_factory_reset_async(id, callback_function, NULL);
 
