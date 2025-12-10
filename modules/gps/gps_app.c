@@ -582,6 +582,20 @@ void gps_evt_handler(gps_t *gps, gps_event_t event, gps_procotol_t protocol,
         }
       }
     }
+    else if (msg.ubx.id == GPS_UBX_NAV_ID_RELPOSNED) {
+      if(config->board == BOARD_TYPE_ROVER_F9P)
+      {
+        gps_ubx_nav_relposned_t *relpos = &gps->ubx_data.relposned;
+        LOG_INFO("GPS[%d] RELPOSNED received: heading=%.5f valid=%d gnss_fix=%d rel_pos_valid=%d ref_obs_miss=%d",
+                 inst->id,
+                 relpos->rel_pos_heading * 1e-5,
+                 relpos->flags.rel_pos_heading_valid,
+                 relpos->flags.gnss_fix_ok,
+                 relpos->flags.rel_pos_valid,
+                 relpos->flags.ref_obs_miss);
+      }
+    }
+    break;
 
   case GPS_PROTOCOL_UNICORE:
     if (inst->current_cmd_req != NULL) {
@@ -625,6 +639,17 @@ case GPS_PROTOCOL_UNICORE_BIN:
       if(gps->nmea_data.gga.fix == GPS_FIX_MANUAL_POS)
       {
         rtcm_send_to_lora(gps);
+      }
+    }
+    else if(config->lora_mode == LORA_MODE_ROVER)
+    {
+      if(config->board == BOARD_TYPE_ROVER_F9P)
+      {
+        // RTCM 수신 로그 (Rover에서)
+        static uint32_t rtcm_count = 0;
+        if(++rtcm_count % 100 == 0) {  // 100개마다 로그
+          LOG_INFO("GPS[%d] RTCM received (count: %u)", inst->id, rtcm_count);
+        }
       }
     }
     break;
@@ -786,8 +811,8 @@ static void gps_process_task(void *pvParameter) {
     if (!init_done) {
             ubx_init_state_t state = ubx_init_async_get_state(&inst->gps);
             if (state == UBX_INIT_STATE_DONE) {
-                printf("✓ UBX initialization completed!\n");
-                
+                LOG_INFO("GPS[%d] UBX initialization completed!", id);
+
                 if(config->board == BOARD_TYPE_BASE_F9P)
                 {
                   user_params_t* params = flash_params_get_current();
@@ -801,9 +826,17 @@ static void gps_process_task(void *pvParameter) {
                     // ubx_set_survey_in_mode_async(&inst->gps, 120, 50000, base_station_cb, NULL); // 120초 5m
                   }
                 }
+                else if(config->board == BOARD_TYPE_ROVER_F9P)
+                {
+                  if(id == GPS_ID_BASE) {
+                    LOG_INFO("GPS[%d] Moving Base mode initialized (RTCM output on UART2)", id);
+                  } else if(id == GPS_ID_ROVER) {
+                    LOG_INFO("GPS[%d] Rover mode initialized (RTCM input on UART2, RELPOSNED output)", id);
+                  }
+                }
                 init_done = true;
             } else if (state == UBX_INIT_STATE_ERROR) {
-                printf("✗ UBX initialization failed!\n");
+                LOG_ERR("GPS[%d] UBX initialization failed!", id);
                 init_done = true;
             }
     }
@@ -1218,6 +1251,19 @@ bool gps_format_position_data(char *buffer)
     ew = inst->gps.nmea_data.gga.ew;
     fix = inst->gps.nmea_data.gga.fix;
     sat_num = inst->gps.nmea_data.gga.sat_num;
+
+    // 디버깅: heading 값과 flags 출력
+    static uint32_t format_count = 0;
+    if(++format_count % 50 == 0) {  // 50번마다 로그
+      gps_ubx_nav_relposned_t *relpos = &heading_inst->gps.ubx_data.relposned;
+      LOG_INFO("Format GPS Data: heading=%.5f valid=%d gnss_fix=%d rel_pos_valid=%d ref_obs_miss=%d fix=%d",
+               heading,
+               relpos->flags.rel_pos_heading_valid,
+               relpos->flags.gnss_fix_ok,
+               relpos->flags.rel_pos_valid,
+               relpos->flags.ref_obs_miss,
+               fix);
+    }
   }
   else if (config->board == BOARD_TYPE_ROVER_UM982) 
   {
