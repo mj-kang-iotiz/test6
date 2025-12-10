@@ -57,31 +57,6 @@
 
 static const ubx_cfg_item_t ublox_base_configs[] = {
 
-    /* GNSS 시스템 활성화 */
-    {
-        .key_id = CFG_SIGNAL_GPS_ENA,
-        .value = {1},
-        .value_len = 1,
-    },
-
-    {
-        .key_id = CFG_SIGNAL_GAL_ENA,
-        .value = {1},
-        .value_len = 1,
-    },
-
-    {
-        .key_id = CFG_SIGNAL_BDS_ENA,
-        .value = {1},
-        .value_len = 1,
-    },
-
-    {
-        .key_id = CFG_SIGNAL_QZSS_ENA,
-        .value = {1},
-        .value_len = 1,
-    },
-
     /* NMEA OUTPUT 설정 */
     {
         .key_id = CFG_GLL_UART1,
@@ -120,13 +95,6 @@ static const ubx_cfg_item_t ublox_base_configs[] = {
         .value_len = 1,
     },
 
-    /* UART1 RTCM 입력 활성화 (NTRIP으로부터 RTCM 수신용) */
-    {
-        .key_id = CFG_UART1INPROT_RTCM3X,
-        .value = {1},
-        .value_len = 1,
-    },
-
     /* RTCM 설정 */
     {
         .key_id = CFG_RTCM_1005_UART1,
@@ -156,32 +124,9 @@ static const ubx_cfg_item_t ublox_base_configs[] = {
         .key_id = CFG_RTCM_1124_UART1,
         .value = {1},
         .value_len = 1,
-    },
-
-    /* Time Mode 비활성화 (RTCM 입력 받기 위해) */
-    {
-        .key_id = CFG_TMODE_MODE,
-        .value = {0},  // 0 = Disabled (allows RTCM input for RTK)
-        .value_len = 1,
-    },
-
-    {
-        .key_id = CFG_TMODE_POS_TYPE,
-        .value = {1},
-        .value_len = 1,
-    },
-
-    {
-        .key_id = CFG_TMODE_SURVEY_DUR,
-        .value = {0x78, 0x00, 0x00, 0x00}, // 120 sec
-        .value_len = 4,
-    },
-
-    {
-        .key_id = CFG_TMODE_SURVEY_ACC_LIMIT,
-        .value = {0x88, 0x13, 0x00, 0x00}, // 5m
-        .value_len = 4,
     }
+
+    /* TMODE 설정은 초기화에서 제거 - ubx_set_fixed_position_async()에서 처리 */
 };
 
 static const ubx_cfg_item_t ublox_rover_configs[] = {
