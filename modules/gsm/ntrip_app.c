@@ -119,10 +119,10 @@ static int ntrip_build_http_request(char *buffer, size_t buffer_size)
   // HTTP 요청 생성
 
   int len = snprintf(buffer, buffer_size,
-                     "GET /%s HTTP/1.0\r\n"
+                     "GET /%s HTTP/1.1\r\n"
                      "User-Agent: NTRIP GUGU SYSTEM\r\n"
                      "Accept: */*\r\n"
-                     "Connection: close\r\n"
+                     "Connection: keep-alive\r\n"
                      "Authorization: Basic %s\r\n"
                      "\r\n",
                      params->ntrip_mountpoint,
@@ -153,26 +153,22 @@ static QueueHandle_t g_gga_send_queue = NULL;
 // GGA 송신 태스크 핸들
 static TaskHandle_t g_gga_send_task_handle = NULL;
 
+/**
+ * @brief NTRIP 서버에 연결하고 HTTP 요청/응답 처리
+ * @return 0: 성공, -1: 실패
+ */
 static int ntrip_connect_to_server(tcp_socket_t *sock)
 {
   int ret;
   int retry_count = 0;
 
-  // HTTP 요청 생성
-
   user_params_t *params = flash_params_get_current();
-
-  // 포트 번호 변환
-
   int ntrip_port = atoi(params->ntrip_port);
 
   // HTTP 요청 생성
-
   if (ntrip_build_http_request(g_ntrip_http_request, sizeof(g_ntrip_http_request)) < 0)
   {
-
     LOG_ERR("HTTP 요청 생성 실패");
-
     return -1;
   }
 
@@ -180,36 +176,84 @@ static int ntrip_connect_to_server(tcp_socket_t *sock)
 
   while (retry_count < NTRIP_MAX_CONNECT_RETRY)
   {
-
     LOG_INFO("NTRIP 서버 연결 시도 [%d/%d]: %s:%d", retry_count + 1,
-
              NTRIP_MAX_CONNECT_RETRY, params->ntrip_url, ntrip_port);
 
-             led_set_color(LED_ID_1, LED_COLOR_RED);
-    ret = tcp_connect(sock, NTRIP_CONTEXT_ID, params->ntrip_url,
+    led_set_color(LED_ID_1, LED_COLOR_RED);
 
-                      ntrip_port, 10000);
+    // TCP 연결
+    ret = tcp_connect(sock, NTRIP_CONTEXT_ID, params->ntrip_url, ntrip_port, 10000);
 
-    if (ret == 0 && tcp_get_socket_state(sock, NTRIP_CONNECT_ID) ==
-
-                        GSM_TCP_STATE_CONNECTED)
+    if (ret != 0 || tcp_get_socket_state(sock, NTRIP_CONNECT_ID) != GSM_TCP_STATE_CONNECTED)
     {
-      LOG_DEBUG("TCP 연결 성공");
-
-      return 0;
+      LOG_WARN("TCP 연결 실패 (ret=%d), 강제 닫기 후 재시도...", ret);
+      led_set_color(LED_ID_1, LED_COLOR_YELLOW);
+      tcp_close_force(sock);
+      vTaskDelay(pdMS_TO_TICKS(1000));
+      retry_count++;
+      continue;
     }
 
-    LOG_WARN("TCP 연결 실패 (ret=%d), 강제 닫기 후 재시도...", ret);
-    led_set_color(LED_ID_1, LED_COLOR_YELLOW);
-    tcp_close_force(sock);
+    LOG_DEBUG("TCP 연결 성공");
 
-    // 재시도 전 대기
+    // HTTP 요청 전송
+    ret = tcp_send(sock, (const uint8_t *)g_ntrip_http_request, strlen(g_ntrip_http_request));
+    if (ret < 0)
+    {
+      LOG_WARN("HTTP 요청 전송 실패: %d", ret);
+      tcp_close_force(sock);
+      vTaskDelay(pdMS_TO_TICKS(1000));
+      retry_count++;
+      continue;
+    }
+
+    LOG_DEBUG("HTTP 요청 전송 완료");
+
+    // HTTP 응답 수신
+    ret = tcp_recv(sock, recv_buf, sizeof(recv_buf), 0);
+    if (ret <= 0)
+    {
+      LOG_WARN("HTTP 응답 수신 실패: %d", ret);
+      tcp_close_force(sock);
+      vTaskDelay(pdMS_TO_TICKS(1000));
+      retry_count++;
+      continue;
+    }
+
+    // HTTP 응답 검증
+    recv_buf[ret] = '\0';
+    int log_len = ret > 200 ? 200 : ret;
+    LOG_DEBUG("HTTP 응답: %.*s", log_len, recv_buf);
+
+    if (strncmp((char *)recv_buf, "ICY 200", 7) == 0 ||
+        strstr((char *)recv_buf, "HTTP/1.0 200") != NULL ||
+        strstr((char *)recv_buf, "HTTP/1.1 200") != NULL)
+    {
+      LOG_INFO("NTRIP 서버 응답: 200 OK");
+      return 0; // 성공
+    }
+
+    // 에러 응답 처리
+    char *status_line = strtok((char *)recv_buf, "\r\n");
+    if (status_line)
+    {
+      LOG_ERR("NTRIP 서버 에러 응답: %s", status_line);
+      if (strstr(status_line, "401"))
+      {
+        LOG_ERR("인증 실패 - ID/PW 확인 필요");
+      }
+      else if (strstr(status_line, "404"))
+      {
+        LOG_ERR("마운트포인트를 찾을 수 없음");
+      }
+    }
+
+    tcp_close_force(sock);
     vTaskDelay(pdMS_TO_TICKS(1000));
     retry_count++;
   }
 
-  LOG_ERR("TCP 연결 최대 재시도 횟수 초과");
-
+  LOG_ERR("NTRIP 서버 연결 최대 재시도 횟수 초과");
   return -1;
 }
 
@@ -368,80 +412,19 @@ static void ntrip_tcp_recv_task(void *pvParameter)
 
  
 
-    // 2-2. 서버 연결
-
+    // 2-2. 서버 연결 (TCP + HTTP 요청/응답)
     if (ntrip_connect_to_server(sock) != 0)
-
     {
-
       init_retry++;
-
       LOG_ERR("서버 연결 실패, 재시도 대기... (%d/%d)", init_retry, NTRIP_INIT_MAX_RETRY);
-
       tcp_socket_destroy(sock);
-
       sock = NULL;
-
       g_ntrip_socket = NULL;
-
       vTaskDelay(pdMS_TO_TICKS(NTRIP_INIT_RETRY_BASE_DELAY_MS * init_retry));
-
       continue;
-
     }
 
     LOG_INFO("서버 연결 완료");
-
- 
-
-    // 2-3. HTTP 헤더 전송
-
-    ret = tcp_send(sock, (const uint8_t *)g_ntrip_http_request,
-
-                   strlen(g_ntrip_http_request));
-
-    if (ret < 0)
-
-    {
-
-      init_retry++;
-
-      LOG_ERR("HTTP 헤더 전송 실패: %d, 재시도 대기... (%d/%d)", ret, init_retry, NTRIP_INIT_MAX_RETRY);
-
-      tcp_close(sock);
-
-      tcp_socket_destroy(sock);
-
-      sock = NULL;
-
-      g_ntrip_socket = NULL;
-
-      vTaskDelay(pdMS_TO_TICKS(NTRIP_INIT_RETRY_BASE_DELAY_MS * init_retry));
-
-      continue;
-
-    }
-
-    LOG_INFO("HTTP 헤더 전송 완료");
-
- 
-
-    // 2-4. 초기 응답 수신 (ICY 200 OK)
-
-    ret = tcp_recv(sock, recv_buf, sizeof(recv_buf), 0);
-    if (ret <= 0)
-    {
-      init_retry++;
-      LOG_ERR("초기 응답 수신 실패: %d, 재시도 대기... (%d/%d)", ret, init_retry, NTRIP_INIT_MAX_RETRY);
-      tcp_close(sock);
-      tcp_socket_destroy(sock);
-      sock = NULL;
-      g_ntrip_socket = NULL;
-      vTaskDelay(pdMS_TO_TICKS(NTRIP_INIT_RETRY_BASE_DELAY_MS * init_retry));
-      continue;
-    }
-
-    LOG_INFO("초기 응답 수신 완료 (%d bytes)", ret);
 
  
 
