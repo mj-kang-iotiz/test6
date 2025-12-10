@@ -158,6 +158,13 @@ static const ubx_cfg_item_t ublox_base_configs[] = {
         .value_len = 1,
     },
 
+    /* Time Mode 비활성화 (RTCM 입력 받기 위해) */
+    {
+        .key_id = CFG_TMODE_MODE,
+        .value = {0},  // 0 = Disabled (allows RTCM input for RTK)
+        .value_len = 1,
+    },
+
     {
         .key_id = CFG_TMODE_POS_TYPE,
         .value = {1},
